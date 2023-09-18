@@ -1,4 +1,4 @@
-# Python Descriptive Statistics Project
+# Python Descriptive Statistics Project (Polars)
 
 ![Python CI](https://github.com/aghakishiyeva/ids706-mini-project-3/actions/workflows/main.yml/badge.svg)
 
