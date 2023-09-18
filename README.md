@@ -18,7 +18,7 @@ This project is focused on calculating descriptive statistics utilizing a Python
 ### 🧪 Running Tests
 
 To initiate tests in this project, execute the following command:
-
+ 
 ```bash
 pytest
 ```
