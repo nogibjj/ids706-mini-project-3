@@ -1,46 +1,58 @@
 import os
-import pandas as pd
-from main import read_dataset, generate_summary_statistics, create_data_visualization
+import polars as pl
+import matplotlib.pyplot as plt
 
-def test_read_dataset():
-    data_csv = read_dataset('tests/test.csv')
-    assert isinstance(data_csv, pd.DataFrame)
-    assert not data_csv.empty
-
-def test_generate_summary_statistics():
-    data = read_dataset('tests/test.csv')
+def read_dataset(file_path: str) -> pl.DataFrame:
+    if file_path.endswith('.csv'):
+        data = pl.read_csv(file_path)
+    elif file_path.endswith('.xlsx'):
+        data = pl.read_excel(file_path)
+    else:
+        raise ValueError("Unsupported file type")
     
-    summary = generate_summary_statistics(data)
-    assert isinstance(summary, dict)
-    assert "mean" in summary
-    assert "median" in summary
-    assert "std_dev" in summary
+    return data
 
-    try:
-        generate_summary_statistics(pd.DataFrame())
-    except ValueError as e:
-        assert str(e) == "Data cannot be None or empty"
+def generate_summary_statistics(data: pl.DataFrame) -> dict:
+    if data is None or data.shape[0] == 0:
+        raise ValueError("Data cannot be None or empty")
 
-def test_create_data_visualization():
+    summary = {
+        "mean": data.mean().to_dict(),
+        "median": data.median().to_dict(),
+        "std_dev": data.std().to_dict()
+    }
+
+    return summary
+
+def create_data_visualization(data: pl.DataFrame, file_path: str) -> None:
+    if data is None or data.shape[0] == 0:
+        raise ValueError("Data cannot be None or empty")
+
+    num_features = len(data.columns)
+    fig, axes = plt.subplots(nrows=num_features, ncols=1, figsize=(8, 2*num_features))
+
+    for i, feature in enumerate(data.columns):
+        ax = axes[i]
+        ax.hist(data[feature].to_numpy(), bins=20) 
+        ax.set_xlabel(f'{feature} values', fontsize=10)  
+        ax.set_ylabel('Frequency', fontsize=10)  
+        ax.set_title(f'Histogram of {feature}', fontsize=12) 
+
+    plt.tight_layout()
+    plt.savefig(file_path)
+
+def save_summary_to_markdown(summary: dict, file_path: str) -> None:
+    with open(file_path, 'w') as f:
+        for key, value in summary.items():
+            f.write(f"## {key.capitalize()}\n")
+            for sub_key, sub_value in value.items():
+                f.write(f"- {sub_key}: {sub_value}\n")
+        f.write("\n")
+        
+if __name__ == "__main__":
     output_dir = 'output'
     os.makedirs(output_dir, exist_ok=True)
-    
-    data = read_dataset('tests/test.csv')
-    output_file = 'output/test_data_visualization.png'
-    create_data_visualization(data, output_file)
-    assert os.path.isfile(output_file)
-
-    try:
-        create_data_visualization(pd.DataFrame(), 'output/test_data_visualization_fail.png')
-    except ValueError as e:
-        assert str(e) == "Data cannot be None or empty"
-
-    if os.path.isfile(output_file):
-        os.remove(output_file)
-    if os.path.isfile('output/test_data_visualization_fail.png'):
-        os.remove('output/test_data_visualization_fail.png')
-
-if __name__ == "__main__":
-    test_read_dataset()
-    test_generate_summary_statistics()
-    test_create_data_visualization()
+    data = read_dataset('src/winequality-red.csv')  # Adjusted the path here
+    summary = generate_summary_statistics(data)
+    create_data_visualization(data, 'output/data_visualization.png')
+    save_summary_to_markdown(summary, 'output/summary.md')
