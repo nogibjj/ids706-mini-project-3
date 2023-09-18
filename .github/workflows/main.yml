@@ -42,9 +42,9 @@ jobs:
 
     - name: Save to repository
       env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN2 }}
       run: |
-        echo GH_TOKEN: "${GH_TOKEN}"
+        echo GH_TOKEN: "${GH_TOKEN2}"
         git config --global user.name 'github-actions'
         git config --local user.email "action@github.com"
         git add .
