@@ -1,19 +1,19 @@
 import os
-import pandas as pd
+import polars as pl
 import matplotlib.pyplot as plt
 
-def read_dataset(file_path: str) -> pd.DataFrame:
+def read_dataset(file_path: str) -> pl.DataFrame:
     if file_path.endswith('.csv'):
-        data = pd.read_csv(file_path)
+        data = pl.read_csv(file_path)
     elif file_path.endswith('.xlsx'):
-        data = pd.read_excel(file_path)
+        data = pl.read_excel(file_path)
     else:
         raise ValueError("Unsupported file type")
     
     return data
 
-def generate_summary_statistics(data: pd.DataFrame) -> dict:
-    if data is None or data.empty:
+def generate_summary_statistics(data: pl.DataFrame) -> dict:
+    if data is None or data.shape[0] == 0:
         raise ValueError("Data cannot be None or empty")
 
     summary = {
@@ -24,8 +24,8 @@ def generate_summary_statistics(data: pd.DataFrame) -> dict:
 
     return summary
 
-def create_data_visualization(data: pd.DataFrame, file_path: str) -> None:
-    if data is None or data.empty:
+def create_data_visualization(data: pl.DataFrame, file_path: str) -> None:
+    if data is None or data.shape[0] == 0:
         raise ValueError("Data cannot be None or empty")
 
     num_features = len(data.columns)
@@ -33,7 +33,7 @@ def create_data_visualization(data: pd.DataFrame, file_path: str) -> None:
 
     for i, feature in enumerate(data.columns):
         ax = axes[i]
-        ax.hist(data[feature], bins=20) 
+        ax.hist(data[feature].to_numpy(), bins=20) 
         ax.set_xlabel(f'{feature} values', fontsize=10)  
         ax.set_ylabel('Frequency', fontsize=10)  
         ax.set_title(f'Histogram of {feature}', fontsize=12) 
