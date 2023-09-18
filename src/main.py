@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 
 def read_dataset(file_path: str) -> pl.DataFrame:
     if file_path.endswith('.csv'):
-        data = pl.read_csv(file_path)
+        data = pl.read_csv(file_path, infer_schema_length=10000)
     elif file_path.endswith('.xlsx'):
-        data = pl.read_excel(file_path)
+        data = pl.read_excel(file_path, infer_schema_length=10000)
     else:
         raise ValueError("Unsupported file type")
     
